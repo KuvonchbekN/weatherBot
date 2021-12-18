@@ -11,7 +11,7 @@ import java.util.LinkedHashMap;
 import java.util.Map;
 
 public class WeatherService {
-    ObjectMapper objectMapper = new ObjectMapper();
+    static ObjectMapper objectMapper = new ObjectMapper();
 
 
     public Map<String, String> getCurrentWeather(String cityName){

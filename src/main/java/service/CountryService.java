@@ -14,29 +14,32 @@ import java.util.List;
 import java.util.Objects;
 
 public class CountryService implements DatabasePath {
-    ObjectMapper objectMapper = new ObjectMapper();
+    static ObjectMapper objectMapper = new ObjectMapper();
     List<Country> countries;
 
-
-    {
-        try {
-            this.countries = Objects.requireNonNullElseGet(getList(), ArrayList::new);
-        } catch (Exception e) {
-            System.out.println("Exception!");
-            countries = new ArrayList<>();
-        }
+     {
+         try {
+             this.countries = Objects.requireNonNullElseGet(getList(), ArrayList::new);
+             System.out.println("getList1");
+         } catch (Exception e) {
+             System.out.println("Exception!");
+             countries = new ArrayList<>();
+         }
     }
 
     public List<Country> getList() { //to get the list of countries in the database
         try {
-            return this.objectMapper.readValue(new File(countriesPath), new TypeReference<>() {
+            System.out.println("1");
+            return objectMapper.readValue(new File(countriesPath), new TypeReference<>() {
             });
         } catch (IOException e) {
             e.printStackTrace();
         }
+        System.out.println("2");
         return null;
     }
 
+    //writing to dataBase for the first time;
 //    {
 //        try {
 //            URL url = new URL("https://countriesnow.space/api/v0.1/countries");
@@ -65,13 +68,16 @@ public class CountryService implements DatabasePath {
         return null;
     }
 
-    public String doesExist(String cityChosen){
+    public List<Country> getListByFirstLetter(String fLetter){
+        List<Country> countries = new ArrayList<>();
         for (Country country: getList()) {
-            for (String region : country.getRegions()) {
-                if (region.startsWith(cityChosen)) return region;
+            if (country.getName().startsWith(fLetter)){
+                countries.add(country);
             }
         }
-        return null;
+        return countries;
     }
+
+
 
 }

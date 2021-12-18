@@ -1,20 +1,24 @@
 package bot;
 
 import model.State;
+import model.User;
 import org.telegram.telegrambots.bots.TelegramLongPollingBot;
 import org.telegram.telegrambots.meta.api.methods.send.SendMessage;
 import org.telegram.telegrambots.meta.api.objects.Message;
 import org.telegram.telegrambots.meta.api.objects.Update;
+import service.UserService;
 
 import java.util.HashMap;
 import java.util.Map;
 
 
 public class WeatherBot extends TelegramLongPollingBot implements State {
+    Markups markups = new Markups();
+    UserService userService = new UserService();
+
     Map<String, String> userActions = new HashMap<String, String>();
 
     ExecuteService executeService = new ExecuteService();
-    Markups markups = new Markups();
 
     @Override
     public String getBotUsername() {
@@ -32,23 +36,24 @@ public class WeatherBot extends TelegramLongPollingBot implements State {
         if(update.hasMessage()){
             chatId = update.getMessage().getChatId().toString();
             Message message = update.getMessage();
+            String userName = message.getFrom().getUserName();
+            String firstName = message.getFrom().getFirstName();
 
-            switch (message.getText()){
-                case START -> {
+                if (!userService.doesExist(chatId)){
+                    User user = new User(firstName, userName, chatId, true);
+                    userService.add(user);
+                }
+                if (message.getText().equals(START)) {
                     userActions.put(message.getChatId().toString(), START);
                     executeMessage(executeService.mainMenuSetting(message));
-                }case TO_SEE_COUNTRIES -> {
-                    
+                }else if (message.getText().equals(TO_SEE_COUNTRIES)){
+                    executeMessage(executeService.showCountries(message));
+                    System.out.println("too see countries");
+                    userActions.put(message.getChatId().toString(), TO_SEE_COUNTRIES);
+                    markups.backButton(message);
                 }
-
-
-
-//                case TO_SEE_COUNTRIES -> ;
-//                case TO_SEE_REGIONS -> ;
-            }
         }else if (update.hasCallbackQuery()){
             chatId = update.getCallbackQuery().getMessage().getChatId().toString();
-
         }
     }
 

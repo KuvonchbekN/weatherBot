@@ -14,7 +14,7 @@ import java.util.List;
 public class UserService implements BaseResponse, DatabasePath {
     static ObjectMapper objectMapper = new ObjectMapper();
 
-    public static String add(User user){
+    public String add(User user){
         List<User> userList = getUsersList();
         try {
             if (userList  == null){
@@ -30,23 +30,18 @@ public class UserService implements BaseResponse, DatabasePath {
     }
 
     public static List<User> getUsersList() {
-        List<User> userList = new ArrayList<>();
+        List<User> userList = null;
 
         try {
-            File file = new File(countriesPath);
-            if (file.length()!=0){
-                List<User> tempList = objectMapper.readValue(file, new TypeReference<List<User>>() {});
-                tempList.forEach(user -> {
-                    if (user.isActive()) {
-                        userList.add(user);
-                    }
-                });
+            userList = objectMapper.readValue(new File(userPath), new TypeReference<>() {
+            });
+            if(userList == null){
+                userList = new ArrayList<>();
             }
-            return userList;
         }catch (Exception e){
             e.printStackTrace();
         }
-        return null;
+        return userList;
     }
 
     public static void updateUserDatabase(List<User> userList){
@@ -57,8 +52,10 @@ public class UserService implements BaseResponse, DatabasePath {
         }
     }
 
-
-
-
-
+    public boolean doesExist(String chatId){
+        for (User user1: getUsersList()) {
+            if (user1.getChatId().equals(chatId))return true;
+        }
+        return false;
+    }
 }
